@@ -113,6 +113,7 @@ void MeiqueProject::parseProject()
 
     ProjectExplorer::Kit *k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
     if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k)) {
+        part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
         QStringList cxxflags; // FIXME: Can we do better?
         part->defines = tc->predefinedMacros(cxxflags);
         part->defines += '\n';
