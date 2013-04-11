@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/meiqueproject">
+        <file>MeiqueProject.mimetypes.xml</file>
+    </qresource>
+</RCC>

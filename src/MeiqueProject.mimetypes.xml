@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/x-meique">
+    <sub-class-of type="text/plain"/>
+    <comment>Meique Project file</comment>
+    <glob pattern="meique.lua"/>
+  </mime-type>
+</mime-info>
