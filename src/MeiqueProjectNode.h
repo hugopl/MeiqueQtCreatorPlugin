@@ -5,6 +5,7 @@
 
 class MeiqueProjectNode : public ProjectExplorer::ProjectNode
 {
+    friend class MeiqueProject;
 public:
     MeiqueProjectNode(const QString& projectFilePath);
 

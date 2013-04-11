@@ -7,6 +7,7 @@
 #include <coreplugin/icontext.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <QMap>
 #include <QProcess>
 #include <QDebug>
 
@@ -86,14 +87,19 @@ void MeiqueProject::parseProject()
     proc.closeWriteChannel();
     proc.waitForFinished();
     QList<QByteArray> output = proc.readAllStandardOutput().split('\n');
+    typedef QMap<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTree;
+    typedef QMapIterator<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTreeIterator;
+
+    NodeTree tree;
+    ProjectExplorer::FolderNode* currentParentNode = m_rootNode;
+
     foreach (QByteArray file, output) {
         if (file.startsWith("File:")) {
-//             m_rootNode->addFileNode(new ProjectExplorer::FileNode(file.mid(sizeof("File:")), ProjectExplorer::SourceType, false));
+            tree[currentParentNode] << new ProjectExplorer::FileNode(file.mid(sizeof("File:")), ProjectExplorer::SourceType, false);
             m_fileList.append(file.mid(sizeof("File:")));
         } else if (file.startsWith("Target: ")) {
-//             MeiqueBuildTarget target;
-//             target.title = file.mid(sizeof("Target:"));
-//             m_buildTargets << target;
+            currentParentNode = new ProjectExplorer::FolderNode(file.mid(sizeof("Target:")));
+            tree[currentParentNode];
         } else if (file.startsWith("Include: ")) {
              includeDirs << file.mid(sizeof("Include:"));
         } else if (file.startsWith("Project: ")) {
@@ -101,6 +107,14 @@ void MeiqueProject::parseProject()
             emit displayNameChanged();
         }
     }
+
+    m_rootNode->addFolderNodes(tree.keys(), m_rootNode);
+    NodeTreeIterator i(tree);
+    while (i.hasNext()) {
+        i.next();
+        m_rootNode->addFileNodes(i.value(), i.key());
+    }
+
     emit fileListChanged();
 
     CPlusPlus::CppModelManagerInterface* modelManager = CPlusPlus::CppModelManagerInterface::instance();
