@@ -142,6 +142,7 @@ void MeiqueProject::parseProject()
 
     pinfo.appendProjectPart(part);
     modelManager->updateProjectInfo(pinfo);
+    modelManager->updateSourceFiles(m_fileList);
 }
 
 #include "MeiqueProject.moc"
