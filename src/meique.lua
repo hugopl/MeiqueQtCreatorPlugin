@@ -8,7 +8,7 @@ f = io.open(qtcSrc.value.."/qtcreator.pri", "r")
 abortIf(f == nil, qtcSrc.value.."/qtcreator.pri not found!")
 s = f:read("*all")
 f:close()
-_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (2.7.%d)")
+_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (2.8.%d)")
 
 QT_VERSION = "4.8"
 qtCore = findPackage("QtCore", QT_VERSION, REQUIRED)
@@ -22,6 +22,7 @@ plugin = Library:new("MeiqueProjectManager")
 plugin:addIncludePath(qtcSrc.value.."/src/plugins")
 plugin:addIncludePath(qtcSrc.value.."/src/libs")
 plugin:addIncludePath(qtcSrc.value.."/src/libs/cplusplus")
+plugin:addIncludePath(qtcSrc.value.."/src/libs/3rdparty")
 plugin:addIncludePath(qtcSrc.value.."/src/libs/3rdparty/cplusplus")
 
 -- Hardcoded QtCreator libraries path

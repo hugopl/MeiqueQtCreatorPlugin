@@ -5,7 +5,7 @@
 #include "MeiqueManager.h"
 
 #include <coreplugin/icontext.h>
-#include <cpptools/ModelManagerInterface.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <QMap>
 #include <QProcess>
@@ -93,10 +93,13 @@ void MeiqueProject::parseProject()
     NodeTree tree;
     ProjectExplorer::FolderNode* currentParentNode = m_rootNode;
 
+    QList<CppTools::ProjectFile> projectFiles;
     foreach (QByteArray file, output) {
         if (file.startsWith("File:")) {
             tree[currentParentNode] << new ProjectExplorer::FileNode(file.mid(sizeof("File:")), ProjectExplorer::SourceType, false);
-            m_fileList.append(file.mid(sizeof("File:")));
+            QString filePath = file.mid(sizeof("File:"));
+            m_fileList.append(filePath);
+            projectFiles.append(CppTools::ProjectFile(filePath, CppTools::ProjectFile::Unclassified));
         } else if (file.startsWith("Target: ")) {
             currentParentNode = new ProjectExplorer::FolderNode(file.mid(sizeof("Target:")));
             tree[currentParentNode];
@@ -117,17 +120,19 @@ void MeiqueProject::parseProject()
 
     emit fileListChanged();
 
-    CPlusPlus::CppModelManagerInterface* modelManager = CPlusPlus::CppModelManagerInterface::instance();
-    CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
+    CppTools::CppModelManagerInterface* modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
 
     pinfo.clearProjectParts();
-    CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(new CPlusPlus::CppModelManagerInterface::ProjectPart);
+    CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
     part->includePaths = includeDirs;
-    part->sourceFiles = m_fileList;
+    part->files = projectFiles;
 
     ProjectExplorer::Kit *k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
     if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k)) {
-        part->language = CPlusPlus::CppModelManagerInterface::ProjectPart::CXX11;
+        part->cxxVersion = CppTools::ProjectPart::CXX11;
+        part->cVersion = CppTools::ProjectPart::C11;
+        part->cxxExtensions = CppTools::ProjectPart::GnuExtensions;
         QStringList cxxflags; // FIXME: Can we do better?
         part->defines = tc->predefinedMacros(cxxflags);
         part->defines += '\n';
