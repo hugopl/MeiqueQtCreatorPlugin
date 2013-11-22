@@ -133,9 +133,8 @@ void MeiqueProject::parseProject()
         part->cxxVersion = CppTools::ProjectPart::CXX11;
         part->cVersion = CppTools::ProjectPart::C11;
         part->cxxExtensions = CppTools::ProjectPart::GnuExtensions;
-        QStringList cxxflags; // FIXME: Can we do better?
+        QStringList cxxflags("-std=c++0x");
         part->defines = tc->predefinedMacros(cxxflags);
-        part->defines += '\n';
 
         foreach (const ProjectExplorer::HeaderPath &headerPath, tc->systemHeaderPaths(cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k))) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
