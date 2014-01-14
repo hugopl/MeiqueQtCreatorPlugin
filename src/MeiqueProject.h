@@ -1,6 +1,7 @@
 #ifndef MeiqueProject_h
 #define MeiqueProject_h
 
+#include <QFileSystemWatcher>
 #include <QFuture>
 #include <projectexplorer/project.h>
 
@@ -22,6 +23,8 @@ public:
     virtual ProjectExplorer::ProjectNode* rootProjectNode() const override;
 
     virtual QStringList files(FilesMode fileMode) const override;
+private slots:
+    void projectFileChanged(const QString&);
 private:
     MeiqueManager* m_manager;
     QString m_fileName;
@@ -33,6 +36,7 @@ private:
     QStringList m_fileList;
 
     QFuture<void> m_codeModelFuture;
+    QFileSystemWatcher* m_watcher;
 
     void parseProject();
 };

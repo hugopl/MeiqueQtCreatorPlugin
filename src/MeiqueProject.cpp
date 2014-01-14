@@ -23,6 +23,7 @@ MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
     , m_fileName(fileName)
     , m_rootNode(new MeiqueProjectNode(fileName))
     , m_document(new MeiqueDocument(fileName))
+    , m_watcher(new QFileSystemWatcher(this))
 {
     setProjectContext(Core::Context(MEIQUE_PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -35,6 +36,8 @@ MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
         buildDir.cd("build");
     }
     m_buildDir = buildDir.canonicalPath();
+
+    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(projectFileChanged(QString)));
 
     parseProject();
 }
@@ -75,10 +78,18 @@ QStringList MeiqueProject::files(FilesMode fileMode) const
     return m_fileList;
 }
 
+void MeiqueProject::projectFileChanged(const QString&)
+{
+    parseProject();
+}
+
 void MeiqueProject::parseProject()
 {
     m_fileList.clear();
     QStringList includeDirs;
+
+    foreach (const QString& file, m_watcher->files())
+        m_watcher->removePath(file);
 
     QProcess proc;
     proc.setWorkingDirectory(m_buildDir);
@@ -104,11 +115,16 @@ void MeiqueProject::parseProject()
             tree[currentParentNode];
         } else if (file.startsWith("Include: ")) {
              includeDirs << file.mid(sizeof("Include:"));
+        } else if (file.startsWith("ProjectFile:")) {
+            m_watcher->addPath(file.mid(sizeof("ProjectFile:")));
         } else if (file.startsWith("Project: ")) {
             m_projectName = file.mid(sizeof("Project:"));
             emit displayNameChanged();
         }
     }
+
+    // The lazy and stupid way...
+    m_rootNode->removeFolderNodes(m_rootNode->subFolderNodes(), m_rootNode);
 
     m_rootNode->addFolderNodes(tree.keys(), m_rootNode);
     NodeTreeIterator i(tree);
@@ -116,8 +132,6 @@ void MeiqueProject::parseProject()
         i.next();
         m_rootNode->addFileNodes(i.value(), i.key());
     }
-
-    emit fileListChanged();
 
     CppTools::CppModelManagerInterface* modelManager = CppTools::CppModelManagerInterface::instance();
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
