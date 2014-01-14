@@ -13,8 +13,10 @@ QString MeiqueManager::mimeType() const
 
 ProjectExplorer::Project* MeiqueManager::openProject(const QString& fileName, QString* errorString)
 {
-    if (!QFileInfo(fileName).isFile())
-        return 0;
+    if (!QFileInfo(fileName).isFile()) {
+        *errorString = tr("Failed opening project '%1': Project is not a file").arg(fileName);
+        return nullptr;
+    }
 
     return new MeiqueProject(this, fileName);
 }
