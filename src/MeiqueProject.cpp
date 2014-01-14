@@ -41,6 +41,7 @@ MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
 
 MeiqueProject::~MeiqueProject()
 {
+    m_codeModelFuture.cancel();
     delete m_rootNode;
 }
 
