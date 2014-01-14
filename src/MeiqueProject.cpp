@@ -93,13 +93,11 @@ void MeiqueProject::parseProject()
     NodeTree tree;
     ProjectExplorer::FolderNode* currentParentNode = m_rootNode;
 
-    QList<CppTools::ProjectFile> projectFiles;
     foreach (QByteArray file, output) {
         if (file.startsWith("File:")) {
             tree[currentParentNode] << new ProjectExplorer::FileNode(file.mid(sizeof("File:")), ProjectExplorer::SourceType, false);
             QString filePath = file.mid(sizeof("File:"));
             m_fileList.append(filePath);
-            projectFiles.append(CppTools::ProjectFile(filePath, CppTools::ProjectFile::Unclassified));
         } else if (file.startsWith("Target: ")) {
             currentParentNode = new ProjectExplorer::FolderNode(file.mid(sizeof("Target:")));
             tree[currentParentNode];
@@ -125,28 +123,29 @@ void MeiqueProject::parseProject()
 
     pinfo.clearProjectParts();
     CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
-    part->includePaths = includeDirs;
-    part->files = projectFiles;
+    part->project = this;
+    part->displayName = displayName();
+    part->projectFile = projectFilePath();
 
-    ProjectExplorer::Kit *k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k)) {
-        part->cxxVersion = CppTools::ProjectPart::CXX11;
-        part->cVersion = CppTools::ProjectPart::C11;
-        part->cxxExtensions = CppTools::ProjectPart::GnuExtensions;
-        QStringList cxxflags("-std=c++0x");
-        part->defines = tc->predefinedMacros(cxxflags);
+    ProjectExplorer::Kit* k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::defaultKit();
+    QStringList cxxflags("-std=c++0x");
 
-        foreach (const ProjectExplorer::HeaderPath &headerPath, tc->systemHeaderPaths(cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k))) {
-            if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
-                part->frameworkPaths.append(headerPath.path());
-            else
-                part->includePaths.append(headerPath.path());
-        }
-    }
+    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    part->evaluateToolchain(tc, QStringList() << cxxflags, cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
+
+    CppTools::ProjectFileAdder adder(part->files);
+    foreach (const QString& file, m_fileList)
+        adder.maybeAdd(file);
+
+    part->includePaths << includeDirs;
 
     pinfo.appendProjectPart(part);
-    modelManager->updateProjectInfo(pinfo);
-    modelManager->updateSourceFiles(m_fileList);
+    m_codeModelFuture.cancel();
+    m_codeModelFuture = modelManager->updateProjectInfo(pinfo);
+
+    setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
+
+    emit fileListChanged();
 }
 
 #include "MeiqueProject.moc"

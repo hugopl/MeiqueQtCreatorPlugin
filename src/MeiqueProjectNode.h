@@ -9,22 +9,22 @@ class MeiqueProjectNode : public ProjectExplorer::ProjectNode
 public:
     MeiqueProjectNode(const QString& projectFilePath);
 
-    virtual bool hasBuildTargets() const;
+    virtual bool hasBuildTargets() const override;
 
-    virtual QList<ProjectAction> supportedActions(Node* node) const;
+    virtual QList<ProjectAction> supportedActions(Node* node) const override;
 
-    virtual bool canAddSubProject(const QString& proFilePath) const;
+    virtual bool canAddSubProject(const QString& proFilePath) const override;
 
-    virtual bool addSubProjects(const QStringList& proFilePaths);
+    virtual bool addSubProjects(const QStringList& proFilePaths) override;
 
-    virtual bool removeSubProjects(const QStringList& proFilePaths);
+    virtual bool removeSubProjects(const QStringList& proFilePaths) override;
 
-    virtual bool addFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths, QStringList* notAdded = 0);
-    virtual bool removeFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths, QStringList* notRemoved = 0);
-    virtual bool deleteFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths);
-    virtual bool renameFile(const ProjectExplorer::FileType fileType, const QString& filePath, const QString& newFilePath);
+    virtual bool addFiles(const QStringList& filePaths, QStringList* notAdded = 0) override;
+    virtual bool removeFiles(const QStringList& filePaths, QStringList* notRemoved = 0) override;
+    virtual bool deleteFiles(const QStringList& filePaths) override;
+    virtual bool renameFile(const QString& filePath, const QString& newFilePath) override;
 
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node*);
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node*) override;
 };
 
 #endif

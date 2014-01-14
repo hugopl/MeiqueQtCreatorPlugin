@@ -30,22 +30,22 @@ bool MeiqueProjectNode::removeSubProjects(const QStringList& proFilePaths)
     return false;
 }
 
-bool MeiqueProjectNode::addFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths, QStringList* notAdded)
+bool MeiqueProjectNode::addFiles(const QStringList& filePaths, QStringList* notAdded)
 {
     return false;
 }
 
-bool MeiqueProjectNode::removeFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths, QStringList* notRemoved)
+bool MeiqueProjectNode::removeFiles(const QStringList& filePaths, QStringList* notRemoved)
 {
     return false;
 }
 
-bool MeiqueProjectNode::deleteFiles(const ProjectExplorer::FileType fileType, const QStringList& filePaths)
+bool MeiqueProjectNode::deleteFiles(const QStringList& filePaths)
 {
     return false;
 }
 
-bool MeiqueProjectNode::renameFile(const ProjectExplorer::FileType fileType, const QString& filePath, const QString& newFilePath)
+bool MeiqueProjectNode::renameFile(const QString& filePath, const QString& newFilePath)
 {
     return false;
 }

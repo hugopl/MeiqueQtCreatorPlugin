@@ -9,9 +9,9 @@ MeiqueProjectPlugin::MeiqueProjectPlugin()
 {
 }
 
-bool MeiqueProjectPlugin::initialize(const QStringList& arguments, QString* errorString)
+bool MeiqueProjectPlugin::initialize(const QStringList&, QString* errorString)
 {
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":meiqueproject/MeiqueProject.mimetypes.xml"), errorString))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":meiqueproject/MeiqueProject.mimetypes.xml"), errorString))
         return false;
 
     MeiqueManager* manager = new MeiqueManager;

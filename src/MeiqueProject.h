@@ -1,6 +1,7 @@
 #ifndef MeiqueProject_h
 #define MeiqueProject_h
 
+#include <QFuture>
 #include <projectexplorer/project.h>
 
 class MeiqueManager;
@@ -14,13 +15,13 @@ public:
     MeiqueProject(MeiqueManager* manager, const QString& fileName);
     ~MeiqueProject();
 
-    virtual QString displayName() const;
-    virtual Core::Id id() const;
-    virtual Core::IDocument* document() const;
-    virtual ProjectExplorer::IProjectManager* projectManager() const;
-    virtual ProjectExplorer::ProjectNode* rootProjectNode() const;
+    virtual QString displayName() const override;
+    virtual Core::Id id() const override;
+    virtual Core::IDocument* document() const override;
+    virtual ProjectExplorer::IProjectManager* projectManager() const override;
+    virtual ProjectExplorer::ProjectNode* rootProjectNode() const override;
 
-    virtual QStringList files(FilesMode fileMode) const;
+    virtual QStringList files(FilesMode fileMode) const override;
 private:
     MeiqueManager* m_manager;
     QString m_fileName;
@@ -30,6 +31,8 @@ private:
 
     QString m_buildDir;
     QStringList m_fileList;
+
+    QFuture<void> m_codeModelFuture;
 
     void parseProject();
 };

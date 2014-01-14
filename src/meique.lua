@@ -8,7 +8,7 @@ f = io.open(qtcSrc.value.."/qtcreator.pri", "r")
 abortIf(f == nil, qtcSrc.value.."/qtcreator.pri not found!")
 s = f:read("*all")
 f:close()
-_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (2.8.%d)")
+_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (3.0.%d)")
 
 QT_VERSION = "4.8"
 qtCore = findPackage("QtCore", QT_VERSION, REQUIRED)
