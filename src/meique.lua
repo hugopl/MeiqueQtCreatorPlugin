@@ -40,9 +40,9 @@ CppTools
 ]])
 
 -- Qt modules
-plugin:usePackage(qtCore)
-plugin:usePackage(qtGui)
-plugin:usePackage(qtNetwork)
+plugin:use(qtCore)
+plugin:use(qtGui)
+plugin:use(qtNetwork)
 plugin:useQtAutomoc()
 plugin:addQtResource("meiqueproject.qrc")
 
