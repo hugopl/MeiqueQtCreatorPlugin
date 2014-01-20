@@ -111,16 +111,18 @@ void MeiqueProject::parseProject()
 
     foreach (QByteArray file, output) {
         if (file.startsWith("File:")) {
-            tree[currentParentNode] << new ProjectExplorer::FileNode(file.mid(sizeof("File:")), ProjectExplorer::SourceType, false);
             QString filePath = file.mid(sizeof("File:"));
-            m_fileList.append(filePath);
+            tree[currentParentNode] << new ProjectExplorer::FileNode(filePath, ProjectExplorer::SourceType, false);
+            m_fileList << filePath;
         } else if (file.startsWith("Target: ")) {
             currentParentNode = new ProjectExplorer::FolderNode(file.mid(sizeof("Target:")));
             tree[currentParentNode];
         } else if (file.startsWith("Include: ")) {
              includeDirs << file.mid(sizeof("Include:"));
         } else if (file.startsWith("ProjectFile:")) {
-            m_watcher->addPath(file.mid(sizeof("ProjectFile:")));
+            QString filePath = file.mid(sizeof("ProjectFile:"));
+            m_watcher->addPath(filePath);
+            m_fileList << filePath;
         } else if (file.startsWith("Project: ")) {
             m_projectName = file.mid(sizeof("Project:"));
             emit displayNameChanged();
@@ -145,18 +147,18 @@ void MeiqueProject::parseProject()
     part->project = this;
     part->displayName = displayName();
     part->projectFile = projectFilePath();
+    part->includePaths << includeDirs;
 
     ProjectExplorer::Kit* k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::defaultKit();
     QStringList cxxflags("-std=c++0x");
 
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-    part->evaluateToolchain(tc, QStringList() << cxxflags, cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
+    part->evaluateToolchain(tc, cxxflags, cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
 
     CppTools::ProjectFileAdder adder(part->files);
     foreach (const QString& file, m_fileList)
         adder.maybeAdd(file);
 
-    part->includePaths << includeDirs;
 
     pinfo.appendProjectPart(part);
     m_codeModelFuture.cancel();
