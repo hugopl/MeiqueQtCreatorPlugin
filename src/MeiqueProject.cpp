@@ -94,11 +94,15 @@ void MeiqueProject::parseProject()
     QProcess proc;
     proc.setWorkingDirectory(m_buildDir);
     // TODO: replace by meique found by the configuration
-    proc.start("meique", QStringList() << "--meique-dump-project");
+    proc.start("meique", QStringList() << "-d" << "--meique-dump-project");
     proc.waitForStarted();
     proc.closeWriteChannel();
     proc.waitForFinished();
     QList<QByteArray> output = proc.readAllStandardOutput().split('\n');
+    QByteArray error = proc.readAllStandardError();
+    if (!error.isEmpty())
+        throw QString::fromUtf8(error);
+
     typedef QMap<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTree;
     typedef QMapIterator<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTreeIterator;
 

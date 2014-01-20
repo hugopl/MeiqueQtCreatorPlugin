@@ -18,7 +18,12 @@ ProjectExplorer::Project* MeiqueManager::openProject(const QString& fileName, QS
         return nullptr;
     }
 
-    return new MeiqueProject(this, fileName);
+    try {
+        return new MeiqueProject(this, fileName);
+    } catch (const QString& msg) {
+        *errorString = tr("Failed opening project '%1': %2").arg(fileName).arg(msg);
+        return nullptr;
+    }
 }
 
 #include "MeiqueManager.moc"
