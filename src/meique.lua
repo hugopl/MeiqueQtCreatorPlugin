@@ -1,11 +1,10 @@
 qtcSrc = option("QtCreatorSources", "Where the QtCreator sources are located")
-abortIf(not qtcSrc, "You need the QtCreator sources to compile QtCreator plugins")
 
 -- Identify QtCreator version
 -- This also proves that meique needs a way to store variables in meiquecache.lua
 -- so this "grep" can be cached.
-f = io.open(qtcSrc.value.."/qtcreator.pri", "r")
-abortIf(f == nil, qtcSrc.value.."/qtcreator.pri not found!")
+f = io.open(qtcSrc.."/qtcreator.pri", "r")
+abortIf(f == nil, qtcSrc.."/qtcreator.pri not found!")
 s = f:read("*all")
 f:close()
 _, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (3.0.%d)")
@@ -19,11 +18,11 @@ configureFile("MeiqueProjectManager.pluginspec.in", "MeiqueProjectManager.plugin
 
 plugin = Library:new("MeiqueProjectManager")
 -- QtCreator include paths
-plugin:addIncludePath(qtcSrc.value.."/src/plugins")
-plugin:addIncludePath(qtcSrc.value.."/src/libs")
-plugin:addIncludePath(qtcSrc.value.."/src/libs/cplusplus")
-plugin:addIncludePath(qtcSrc.value.."/src/libs/3rdparty")
-plugin:addIncludePath(qtcSrc.value.."/src/libs/3rdparty/cplusplus")
+plugin:addIncludePath(qtcSrc.."/src/plugins")
+plugin:addIncludePath(qtcSrc.."/src/libs")
+plugin:addIncludePath(qtcSrc.."/src/libs/cplusplus")
+plugin:addIncludePath(qtcSrc.."/src/libs/3rdparty")
+plugin:addIncludePath(qtcSrc.."/src/libs/3rdparty/cplusplus")
 
 -- Hardcoded QtCreator libraries path
 plugin:addLibraryPaths([[
