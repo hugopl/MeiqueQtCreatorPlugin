@@ -5,22 +5,24 @@
 
 class MeiqueProjectNode : public ProjectExplorer::ProjectNode
 {
-    friend class MeiqueProject;
 public:
-    MeiqueProjectNode(const QString& projectFilePath);
+    MeiqueProjectNode(const QString& projectFilePath)
+        : ProjectExplorer::ProjectNode(projectFilePath)
+    {
+    }
 
-    virtual bool canAddSubProject(const QString& proFilePath) const override;
+    virtual bool canAddSubProject(const QString&) const override { return false; }
 
-    virtual bool addSubProjects(const QStringList& proFilePaths) override;
+    virtual bool addSubProjects(const QStringList&) override { return false; }
 
-    virtual bool removeSubProjects(const QStringList& proFilePaths) override;
+    virtual bool removeSubProjects(const QStringList&) override { return false; }
 
-    virtual bool addFiles(const QStringList& filePaths, QStringList* notAdded = 0) override;
-    virtual bool removeFiles(const QStringList& filePaths, QStringList* notRemoved = 0) override;
-    virtual bool deleteFiles(const QStringList& filePaths) override;
-    virtual bool renameFile(const QString& filePath, const QString& newFilePath) override;
+    virtual bool addFiles(const QStringList&, QStringList*) override { return false; }
+    virtual bool removeFiles(const QStringList&, QStringList*) override { return false; }
+    virtual bool deleteFiles(const QStringList&) override { return false; }
+    virtual bool renameFile(const QString&, const QString&) override { return false; }
 
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node*) override;
+    virtual QList<ProjectExplorer::RunConfiguration*> runConfigurationsFor(Node*) override { return QList<ProjectExplorer::RunConfiguration*>(); }
 };
 
 #endif

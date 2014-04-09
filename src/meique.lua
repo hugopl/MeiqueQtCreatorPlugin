@@ -50,7 +50,6 @@ plugin:addFiles([[
 MeiqueProjectPlugin.cpp
 MeiqueManager.cpp
 MeiqueProject.cpp
-MeiqueProjectNode.cpp
 MeiqueDocument.cpp
 ]])
 
