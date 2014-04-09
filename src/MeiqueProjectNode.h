@@ -9,10 +9,6 @@ class MeiqueProjectNode : public ProjectExplorer::ProjectNode
 public:
     MeiqueProjectNode(const QString& projectFilePath);
 
-    virtual bool hasBuildTargets() const override;
-
-    virtual QList<ProjectAction> supportedActions(Node* node) const override;
-
     virtual bool canAddSubProject(const QString& proFilePath) const override;
 
     virtual bool addSubProjects(const QStringList& proFilePaths) override;

@@ -7,12 +7,12 @@ f = io.open(qtcSrc.."/qtcreator.pri", "r")
 abortIf(f == nil, qtcSrc.."/qtcreator.pri not found!")
 s = f:read("*all")
 f:close()
-_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (3.0.%d)")
+_, _, QTCREATOR_VERSION = string.find(s, "QTCREATOR_VERSION = (3.0.%d+)")
 
-QT_VERSION = "4.8"
-qtCore = findPackage("QtCore", QT_VERSION, REQUIRED)
-qtGui = findPackage("QtGui", QT_VERSION, REQUIRED)
-qtNetwork = findPackage("QtNetwork", QT_VERSION, REQUIRED)
+qtCore = findPackage("Qt5Core")
+qtGui = findPackage("Qt5Gui")
+qtWidgets = findPackage("Qt5Widgets")
+qtNetwork = findPackage("Qt5Network")
 
 configureFile("MeiqueProjectManager.pluginspec.in", "MeiqueProjectManager.pluginspec")
 
@@ -41,6 +41,7 @@ CppTools
 -- Qt modules
 plugin:use(qtCore)
 plugin:use(qtGui)
+plugin:use(qtWidgets)
 plugin:use(qtNetwork)
 plugin:useQtAutomoc()
 plugin:addQtResource("meiqueproject.qrc")

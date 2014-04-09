@@ -5,16 +5,6 @@ MeiqueProjectNode::MeiqueProjectNode(const QString& projectFilePath)
 {
 }
 
-bool MeiqueProjectNode::hasBuildTargets() const
-{
-    return false;
-}
-
-QList<ProjectExplorer::ProjectNode::ProjectAction> MeiqueProjectNode::supportedActions(Node* node) const
-{
-    return QList<ProjectExplorer::ProjectNode::ProjectAction>();
-}
-
 bool MeiqueProjectNode::canAddSubProject(const QString& proFilePath) const
 {
     return false;

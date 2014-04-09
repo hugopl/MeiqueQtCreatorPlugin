@@ -17,7 +17,6 @@ public:
     ~MeiqueProject();
 
     virtual QString displayName() const override;
-    virtual Core::Id id() const override;
     virtual Core::IDocument* document() const override;
     virtual ProjectExplorer::IProjectManager* projectManager() const override;
     virtual ProjectExplorer::ProjectNode* rootProjectNode() const override;

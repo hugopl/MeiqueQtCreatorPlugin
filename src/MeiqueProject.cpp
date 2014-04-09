@@ -53,11 +53,6 @@ QString MeiqueProject::displayName() const
     return m_projectName;
 }
 
-Core::Id MeiqueProject::id() const
-{
-    return "MeiqueProject";
-}
-
 Core::IDocument* MeiqueProject::document() const
 {
     return m_document;
@@ -130,13 +125,13 @@ void MeiqueProject::parseProject()
     }
 
     // The lazy and stupid way...
-    m_rootNode->removeFolderNodes(m_rootNode->subFolderNodes(), m_rootNode);
+    m_rootNode->removeFolderNodes(m_rootNode->subFolderNodes());
 
-    m_rootNode->addFolderNodes(tree.keys(), m_rootNode);
+    m_rootNode->addFolderNodes(tree.keys());
     NodeTreeIterator i(tree);
     while (i.hasNext()) {
         i.next();
-        m_rootNode->addFileNodes(i.value(), i.key());
+        i.key()->addFileNodes(i.value());
     }
 
     CppTools::CppModelManagerInterface* modelManager = CppTools::CppModelManagerInterface::instance();
