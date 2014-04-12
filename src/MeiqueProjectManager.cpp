@@ -1,17 +1,19 @@
-#include "MeiqueManager.h"
-#include "Constants.h"
+#include "MeiqueProjectManager.h"
+#include "MeiqueConstants.h"
 #include "MeiqueProject.h"
 
-MeiqueManager::MeiqueManager()
+namespace Meique {
+
+ProjectManager::ProjectManager()
 {
 }
 
-QString MeiqueManager::mimeType() const
+QString ProjectManager::mimeType() const
 {
-    return MEIQUE_MIMETYPE;
+    return Constants::MimeType;
 }
 
-ProjectExplorer::Project* MeiqueManager::openProject(const QString& fileName, QString* errorString)
+ProjectExplorer::Project* ProjectManager::openProject(const QString& fileName, QString* errorString)
 {
     if (!QFileInfo(fileName).isFile()) {
         *errorString = tr("Failed opening project '%1': Project is not a file").arg(fileName);
@@ -19,11 +21,13 @@ ProjectExplorer::Project* MeiqueManager::openProject(const QString& fileName, QS
     }
 
     try {
-        return new MeiqueProject(this, fileName);
+        return new Project(this, fileName);
     } catch (const QString& msg) {
         *errorString = tr("Failed opening project '%1': %2").arg(fileName).arg(msg);
         return nullptr;
     }
+}
+
 }
 
 #include "MeiqueManager.moc"

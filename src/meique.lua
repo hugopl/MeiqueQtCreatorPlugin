@@ -47,8 +47,8 @@ plugin:useQtAutomoc()
 plugin:addQtResource("meiqueproject.qrc")
 
 plugin:addFiles([[
-MeiqueProjectPlugin.cpp
-MeiqueManager.cpp
+MeiquePlugin.cpp
+MeiqueProjectManager.cpp
 MeiqueProject.cpp
 ]])
 

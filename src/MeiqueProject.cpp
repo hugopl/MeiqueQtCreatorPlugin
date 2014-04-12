@@ -1,8 +1,8 @@
 #include "MeiqueProject.h"
-#include "Constants.h"
+#include "MeiqueConstants.h"
 #include "MeiqueDocument.h"
 #include "MeiqueProjectNode.h"
-#include "MeiqueManager.h"
+#include "MeiqueProjectManager.h"
 
 #include <coreplugin/icontext.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -17,15 +17,16 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 
+namespace Meique {
 
-MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
+Project::Project(ProjectManager* manager, const QString& fileName)
     : m_manager(manager)
     , m_fileName(fileName)
-    , m_rootNode(new MeiqueProjectNode(fileName))
+    , m_rootNode(new ProjectNode(fileName))
     , m_document(new MeiqueDocument)
     , m_watcher(new QFileSystemWatcher(this))
 {
-    setProjectContext(Core::Context(MEIQUE_PROJECT_CONTEXT));
+    setProjectContext(Core::Context(Constants::ProjectContext));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     QDir buildDir = QFileInfo(fileName).dir();
@@ -42,43 +43,43 @@ MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
     parseProject();
 }
 
-MeiqueProject::~MeiqueProject()
+Project::~Project()
 {
     m_codeModelFuture.cancel();
     delete m_rootNode;
 }
 
-QString MeiqueProject::displayName() const
+QString Project::displayName() const
 {
     return m_projectName;
 }
 
-Core::IDocument* MeiqueProject::document() const
+Core::IDocument* Project::document() const
 {
     return m_document;
 }
 
-ProjectExplorer::IProjectManager* MeiqueProject::projectManager() const
+ProjectExplorer::IProjectManager* Project::projectManager() const
 {
     return m_manager;
 }
 
-ProjectExplorer::ProjectNode* MeiqueProject::rootProjectNode() const
+ProjectExplorer::ProjectNode* Project::rootProjectNode() const
 {
     return m_rootNode;
 }
 
-QStringList MeiqueProject::files(FilesMode fileMode) const
+QStringList Project::files(FilesMode fileMode) const
 {
     return m_fileList;
 }
 
-void MeiqueProject::projectFileChanged(const QString&)
+void Project::projectFileChanged(const QString&)
 {
     parseProject();
 }
 
-void MeiqueProject::parseProject()
+void Project::parseProject()
 {
     m_fileList.clear();
     QStringList includeDirs;
@@ -162,6 +163,8 @@ void MeiqueProject::parseProject()
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
 
     emit fileListChanged();
+}
+
 }
 
 #include "MeiqueProject.moc"

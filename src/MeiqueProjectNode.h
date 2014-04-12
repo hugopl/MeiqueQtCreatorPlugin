@@ -3,10 +3,12 @@
 
 #include <projectexplorer/projectnodes.h>
 
-class MeiqueProjectNode : public ProjectExplorer::ProjectNode
+namespace Meique {
+
+class ProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    MeiqueProjectNode(const QString& projectFilePath)
+    ProjectNode(const QString& projectFilePath)
         : ProjectExplorer::ProjectNode(projectFilePath)
     {
     }
@@ -24,5 +26,7 @@ public:
 
     virtual QList<ProjectExplorer::RunConfiguration*> runConfigurationsFor(Node*) override { return QList<ProjectExplorer::RunConfiguration*>(); }
 };
+
+}
 
 #endif

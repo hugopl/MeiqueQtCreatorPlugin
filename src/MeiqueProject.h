@@ -5,16 +5,18 @@
 #include <QFuture>
 #include <projectexplorer/project.h>
 
-class MeiqueManager;
-class MeiqueProjectNode;
+namespace Meique {
+
+class ProjectManager;
+class ProjectNode;
 class MeiqueDocument;
 
-class MeiqueProject : public ProjectExplorer::Project
+class Project : public ProjectExplorer::Project
 {
     Q_OBJECT
 public:
-    MeiqueProject(MeiqueManager* manager, const QString& fileName);
-    ~MeiqueProject();
+    Project(ProjectManager* manager, const QString& fileName);
+    ~Project();
 
     virtual QString displayName() const override;
     virtual Core::IDocument* document() const override;
@@ -25,10 +27,10 @@ public:
 private slots:
     void projectFileChanged(const QString&);
 private:
-    MeiqueManager* m_manager;
+    ProjectManager* m_manager;
     QString m_fileName;
     QString m_projectName;
-    MeiqueProjectNode* m_rootNode;
+    ProjectNode* m_rootNode;
     MeiqueDocument* m_document;
 
     QString m_buildDir;
@@ -39,5 +41,7 @@ private:
 
     void parseProject();
 };
+
+}
 
 #endif
