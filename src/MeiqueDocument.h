@@ -2,27 +2,21 @@
 #define MeiqueDocument_h
 
 #include <coreplugin/idocument.h>
+#include "Constants.h"
 
 class MeiqueDocument : public Core::IDocument
 {
 public:
-    MeiqueDocument(const QString& fileName);
+    bool save(QString*, const QString&, bool) override { return false; }
+    QString defaultPath() const override { return QString(); }
+    QString suggestedFileName() const override { return QString(); }
+    QString mimeType() const override { return MEIQUE_MIMETYPE; }
 
-    virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
-    virtual QString fileName() const;
-    virtual QString defaultPath() const;
-    virtual QString suggestedFileName() const;
-    virtual QString mimeType() const;
+    bool isModified() const override { return false; }
+    bool isSaveAsAllowed() const override { return false; }
 
-    virtual bool isModified() const;
-    virtual bool isSaveAsAllowed() const;
-
-    virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    virtual void rename(const QString &newName);
-
-private:
-    QString m_fileName;
+    ReloadBehavior reloadBehavior(ChangeTrigger, ChangeType) const override { return BehaviorSilent; }
+    bool reload(QString*, ReloadFlag, ChangeType) override { return false; }
 };
 
 #endif

@@ -22,7 +22,7 @@ MeiqueProject::MeiqueProject(MeiqueManager* manager, const QString& fileName)
     : m_manager(manager)
     , m_fileName(fileName)
     , m_rootNode(new MeiqueProjectNode(fileName))
-    , m_document(new MeiqueDocument(fileName))
+    , m_document(new MeiqueDocument)
     , m_watcher(new QFileSystemWatcher(this))
 {
     setProjectContext(Core::Context(MEIQUE_PROJECT_CONTEXT));
