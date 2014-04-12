@@ -26,6 +26,7 @@ Project::Project(ProjectManager* manager, const QString& fileName)
     , m_document(new MeiqueDocument)
     , m_watcher(new QFileSystemWatcher(this))
 {
+    setId(Constants::ProjectId);
     setProjectContext(Core::Context(Constants::ProjectContext));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -145,16 +146,15 @@ void Project::parseProject()
     part->projectFile = projectFilePath();
     part->includePaths << includeDirs;
 
+    CppTools::ProjectFileAdder adder(part->files);
+    foreach (const QString& file, m_fileList)
+        adder.maybeAdd(file);
+
     ProjectExplorer::Kit* k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::defaultKit();
     QStringList cxxflags("-std=c++0x");
 
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     part->evaluateToolchain(tc, cxxflags, cxxflags, ProjectExplorer::SysRootKitInformation::sysRoot(k));
-
-    CppTools::ProjectFileAdder adder(part->files);
-    foreach (const QString& file, m_fileList)
-        adder.maybeAdd(file);
-
 
     pinfo.appendProjectPart(part);
     m_codeModelFuture.cancel();
