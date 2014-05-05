@@ -18,12 +18,12 @@ public:
     Project(ProjectManager* manager, const QString& fileName);
     ~Project();
 
-    virtual QString displayName() const override;
-    virtual Core::IDocument* document() const override;
-    virtual ProjectExplorer::IProjectManager* projectManager() const override;
-    virtual ProjectExplorer::ProjectNode* rootProjectNode() const override;
+    QString displayName() const override;
+    Core::IDocument* document() const override;
+    ProjectExplorer::IProjectManager* projectManager() const override;
+    ProjectExplorer::ProjectNode* rootProjectNode() const override;
 
-    virtual QStringList files(FilesMode fileMode) const override;
+    QStringList files(FilesMode fileMode) const override;
 private slots:
     void projectFileChanged(const QString&);
 private:
