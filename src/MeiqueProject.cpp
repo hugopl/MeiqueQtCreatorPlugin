@@ -24,13 +24,14 @@ Project::Project(ProjectManager* manager, const QString& fileName)
     , m_fileName(fileName)
     , m_rootNode(new ProjectNode(fileName))
     , m_document(new MeiqueDocument)
-    , m_watcher(new QFileSystemWatcher(this))
 {
     setId(Constants::ProjectId);
     setProjectContext(Core::Context(Constants::ProjectContext));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    QDir buildDir = QFileInfo(fileName).dir();
+    m_projectDir = QFileInfo(fileName).dir();
+
+    QDir buildDir(m_projectDir);
     // TODO make build dir configurable.
     if (!buildDir.cd("build")) {
         buildDir.mkdir("build");
@@ -39,9 +40,13 @@ Project::Project(ProjectManager* manager, const QString& fileName)
     }
     m_buildDir = buildDir.canonicalPath();
 
-    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(projectFileChanged(QString)));
+    connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, &Project::projectFileChanged);
 
-    parseProject();
+    QString error;
+    parseProject(&error);
+    if (!error.isNull())
+        throw error;
+    qDebug() << m_watcher.files();
 }
 
 Project::~Project()
@@ -70,24 +75,18 @@ ProjectExplorer::ProjectNode* Project::rootProjectNode() const
     return m_rootNode;
 }
 
-QStringList Project::files(FilesMode fileMode) const
+QStringList Project::files(FilesMode) const
 {
-    return m_fileList;
+    return QStringList(m_files.toList());
 }
 
-void Project::projectFileChanged(const QString&)
+void Project::projectFileChanged()
 {
     parseProject();
 }
 
-void Project::parseProject()
+void Project::parseProject(QString* error)
 {
-    m_fileList.clear();
-    QStringList includeDirs;
-
-    foreach (const QString& file, m_watcher->files())
-        m_watcher->removePath(file);
-
     QProcess proc;
     proc.setWorkingDirectory(m_buildDir);
     // TODO: replace by meique found by the configuration
@@ -96,45 +95,34 @@ void Project::parseProject()
     proc.closeWriteChannel();
     proc.waitForFinished();
     QList<QByteArray> output = proc.readAllStandardOutput().split('\n');
-    QByteArray error = proc.readAllStandardError();
-    if (!error.isEmpty())
-        throw QString::fromUtf8(error);
+    QByteArray errorOutput = proc.readAllStandardError();
+    if (!errorOutput.isEmpty()) {
+        if (error)
+            *error = QString::fromUtf8(errorOutput);
+        return;
+    }
 
-    typedef QMap<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTree;
-    typedef QMapIterator<ProjectExplorer::FolderNode*, QList<ProjectExplorer::FileNode*> > NodeTreeIterator;
-
-    NodeTree tree;
-    ProjectExplorer::FolderNode* currentParentNode = m_rootNode;
+    QStringList includeDirs;
+    QSet<QString> oldFiles(m_files);
+    m_files.clear();
 
     foreach (QByteArray file, output) {
         if (file.startsWith("File:")) {
             QString filePath = file.mid(sizeof("File:"));
-            tree[currentParentNode] << new ProjectExplorer::FileNode(filePath, ProjectExplorer::SourceType, false);
-            m_fileList << filePath;
-        } else if (file.startsWith("Target: ")) {
-            currentParentNode = new ProjectExplorer::FolderNode(file.mid(sizeof("Target:")));
-            tree[currentParentNode];
+            m_files << filePath;
         } else if (file.startsWith("Include: ")) {
              includeDirs << file.mid(sizeof("Include:"));
         } else if (file.startsWith("ProjectFile:")) {
             QString filePath = file.mid(sizeof("ProjectFile:"));
-            m_watcher->addPath(filePath);
-            m_fileList << filePath;
+            m_watcher.addPath(filePath);
+            m_files << filePath;
         } else if (file.startsWith("Project: ")) {
             m_projectName = file.mid(sizeof("Project:"));
             emit displayNameChanged();
         }
     }
-
-    // The lazy and stupid way...
-    m_rootNode->removeFolderNodes(m_rootNode->subFolderNodes());
-
-    m_rootNode->addFolderNodes(tree.keys());
-    NodeTreeIterator i(tree);
-    while (i.hasNext()) {
-        i.next();
-        i.key()->addFileNodes(i.value());
-    }
+    removeNodes(oldFiles - m_files);
+    addNodes(m_files - oldFiles);
 
     CppTools::CppModelManagerInterface* modelManager = CppTools::CppModelManagerInterface::instance();
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
@@ -147,7 +135,7 @@ void Project::parseProject()
     part->includePaths << includeDirs;
 
     CppTools::ProjectFileAdder adder(part->files);
-    foreach (const QString& file, m_fileList)
+    foreach (const QString& file, m_files)
         adder.maybeAdd(file);
 
     ProjectExplorer::Kit* k = activeTarget() ? activeTarget()->kit() : ProjectExplorer::KitManager::defaultKit();
@@ -163,6 +151,64 @@ void Project::parseProject()
     setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
 
     emit fileListChanged();
+}
+
+void Project::addNodes(const QSet<QString>& nodes)
+{
+    using namespace ProjectExplorer;
+
+    const QLatin1Char sep('/');
+    QStringList path;
+    for (const QString& node : nodes) {
+        path = m_projectDir.relativeFilePath(node).split(sep);
+        path.pop_back();
+        FolderNode* folder = findFolderFor(path);
+        folder->addFileNodes(QList<FileNode*>() << new FileNode(node, SourceType, false));
+    }
+}
+
+void Project::removeNodes(const QSet<QString>& nodes)
+{
+    using namespace ProjectExplorer;
+
+    const QLatin1Char sep('/');
+    QStringList path;
+
+    for (const QString& node : nodes) {
+        path = m_projectDir.relativeFilePath(node).split(sep);
+        path.pop_back();
+        FolderNode* folder = findFolderFor(path);
+
+        for (FileNode* file : folder->fileNodes()) {
+            if (file->path() == node) {
+                folder->removeFileNodes(QList<FileNode*>() << file);
+                break;
+            }
+        }
+    }
+}
+
+ProjectExplorer::FolderNode* Project::findFolderFor(const QStringList& path)
+{
+    using namespace ProjectExplorer;
+    FolderNode* folder = m_rootNode;
+
+    for (const QString& part : path) {
+        bool folderFound = false;
+        for (FolderNode* subFolder : folder->subFolderNodes()) {
+            if (subFolder->displayName() == part) {
+                folder = subFolder;
+                folderFound = true;
+                break;
+            }
+        }
+        if (!folderFound) {
+            FolderNode* newFolder = new FolderNode(part);
+            folder->addFolderNodes(QList<FolderNode*>() << newFolder);
+            folder = newFolder;
+        }
+    }
+    return folder;
 }
 
 }

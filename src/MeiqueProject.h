@@ -4,6 +4,7 @@
 #include <QFileSystemWatcher>
 #include <QFuture>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 
 namespace Meique {
 
@@ -23,9 +24,9 @@ public:
     ProjectExplorer::IProjectManager* projectManager() const override;
     ProjectExplorer::ProjectNode* rootProjectNode() const override;
 
-    QStringList files(FilesMode fileMode) const override;
+    QStringList files(FilesMode) const override;
 private slots:
-    void projectFileChanged(const QString&);
+    void projectFileChanged();
 private:
     ProjectManager* m_manager;
     QString m_fileName;
@@ -34,12 +35,17 @@ private:
     MeiqueDocument* m_document;
 
     QString m_buildDir;
-    QStringList m_fileList;
+    QDir m_projectDir;
+    QSet<QString> m_files;
+
 
     QFuture<void> m_codeModelFuture;
-    QFileSystemWatcher* m_watcher;
+    QFileSystemWatcher m_watcher;
 
-    void parseProject();
+    void parseProject(QString* error = 0);
+    void addNodes(const QSet<QString>& nodes);
+    void removeNodes(const QSet<QString>& nodes);
+    ProjectExplorer::FolderNode* findFolderFor(const QStringList& path);
 };
 
 }
