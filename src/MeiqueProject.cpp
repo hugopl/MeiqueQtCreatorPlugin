@@ -29,6 +29,7 @@ Project::Project(ProjectManager* manager, const QString& fileName)
     setProjectContext(Core::Context(Constants::ProjectContext));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
+    m_document->setFilePath(fileName);
     m_projectDir = QFileInfo(fileName).dir();
 
     QDir buildDir(m_projectDir);
