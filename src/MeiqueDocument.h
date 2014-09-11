@@ -9,10 +9,13 @@ namespace Meique {
 class MeiqueDocument : public Core::IDocument
 {
 public:
+    MeiqueDocument()
+    {
+        setMimeType(Constants::MimeType);
+    }
     bool save(QString*, const QString&, bool) override { return false; }
     QString defaultPath() const override { return QString(); }
     QString suggestedFileName() const override { return QString(); }
-    QString mimeType() const override { return Constants::MimeType; }
 
     bool isModified() const override { return false; }
     bool isSaveAsAllowed() const override { return false; }

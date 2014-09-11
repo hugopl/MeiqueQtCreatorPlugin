@@ -103,7 +103,7 @@ void Project::parseProject(QString* error)
         return;
     }
 
-    QStringList includeDirs;
+    CppTools::ProjectPart::HeaderPaths includeDirs;
     QSet<QString> oldFiles(m_files);
     m_files.clear();
 
@@ -112,7 +112,7 @@ void Project::parseProject(QString* error)
             QString filePath = file.mid(sizeof("File:"));
             m_files << filePath;
         } else if (file.startsWith("Include: ")) {
-             includeDirs << file.mid(sizeof("Include:"));
+             includeDirs << CppTools::ProjectPart::HeaderPath(file.mid(sizeof("Include:")), CppTools::ProjectPart::HeaderPath::IncludePath);
         } else if (file.startsWith("ProjectFile:")) {
             QString filePath = file.mid(sizeof("ProjectFile:"));
             m_watcher.addPath(filePath);
@@ -132,8 +132,8 @@ void Project::parseProject(QString* error)
     CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
     part->project = this;
     part->displayName = displayName();
-    part->projectFile = projectFilePath();
-    part->includePaths << includeDirs;
+    part->projectFile = projectFilePath().toString();
+    part->headerPaths << includeDirs;
 
     CppTools::ProjectFileAdder adder(part->files);
     foreach (const QString& file, m_files)

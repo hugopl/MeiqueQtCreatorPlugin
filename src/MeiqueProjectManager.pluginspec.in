@@ -1,4 +1,4 @@
-<plugin name="MeiqueProjectManager" version="@QTCREATOR_VERSION@" compatVersion="@QTCREATOR_VERSION@">
+<plugin name="MeiqueProjectManager" version="@QTC_VERSION@" compatVersion="@QTC_VERSION@">
     <vendor>Meique.org</vendor>
     <copyright>(C) 2012 Hugo Parente Lima</copyright>
     <license>
@@ -10,10 +10,10 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Meique support</description>
     <url>http://www.meique.org</url>
     <dependencyList>
-        <dependency name="TextEditor" version="@QTCREATOR_VERSION@"/>
-        <dependency name="ProjectExplorer" version="@QTCREATOR_VERSION@"/>
-        <dependency name="CppTools" version="@QTCREATOR_VERSION@"/>
-        <dependency name="QtSupport" version="@QTCREATOR_VERSION@"/>
-        <dependency name="Designer" version="@QTCREATOR_VERSION@" type="optional"/>
+        <dependency name="TextEditor" version="@QTC_VERSION@"/>
+        <dependency name="ProjectExplorer" version="@QTC_VERSION@"/>
+        <dependency name="CppTools" version="@QTC_VERSION@"/>
+        <dependency name="QtSupport" version="@QTC_VERSION@"/>
+        <dependency name="Designer" version="@QTC_VERSION@" type="optional"/>
     </dependencyList>
 </plugin>
